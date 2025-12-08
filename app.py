@@ -3,7 +3,7 @@ import subprocess
 
 def run_command(user_input):
     # SECURITY ISSUE: using subprocess with shell=True is dangerous and is security issue.
-    # This allows command injection
+    # This will allow command injection
     subprocess.call(user_input, shell=True)
 
 def login():
