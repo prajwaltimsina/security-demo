@@ -1,12 +1,31 @@
-version: 0.2
+name: Security Scan (Bandit)
 
-phases:
-  install:
-    commands:
-      - echo "Installing security tools..."
-      - pip install bandit
-  build:
-    commands:
-      - echo "Running SAST scan on Python code..."
-      # -r scans recursively, -ll reports Medium and High severity issues
-      - bandit -r app.py -ll
+on: [push, pull_request]
+
+jobs:
+  bandit_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Bandit
+      run: pip install bandit
+
+    # CHANGED: -f txt (format text) and -o bandit_report.txt
+    - name: Run Bandit Scan
+      run: bandit -r . -ll -f txt -o bandit_report.txt
+
+    # CHANGED: path is now bandit_report.txt
+    - name: Upload Report to GitHub
+      if: always() 
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: bandit_report.txt
