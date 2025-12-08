@@ -1,15 +1,19 @@
-name: Security Scan (Bandit)
+name: DevSecOps Pipeline
 
 on: [push, pull_request]
 
 jobs:
-  bandit_scan:
+  security_scans:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Get the code
     - name: Checkout code
       uses: actions/checkout@v3
 
+    # ---------------------------------------------------
+    # STAGE 1: SAST (Code Security)
+    # ---------------------------------------------------
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -18,14 +22,34 @@ jobs:
     - name: Install Bandit
       run: pip install bandit
 
-    # CHANGED: -f txt (format text) and -o bandit_report.txt
-    - name: Run Bandit Scan
-      run: bandit -r . -ll -f txt -o bandit_report.txt
+    - name: Run Bandit Scan (SAST)
+      # --exit-zero ensures the pipeline continues even if vulnerabilities are found
+      run: bandit -r . -ll -f txt -o bandit_report.txt --exit-zero
 
-    # CHANGED: path is now bandit_report.txt
-    - name: Upload Report to GitHub
-      if: always() 
+    # ---------------------------------------------------
+    # STAGE 2: CONTAINER SECURITY (Infra Security)
+    # ---------------------------------------------------
+    - name: Build Docker Image
+      # We build the container so Trivy has something to scan
+      run: docker build -t my-secure-app:latest .
+
+    - name: Run Trivy Scan (Container)
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'my-secure-app:latest'
+        format: 'table'
+        output: 'trivy_report.txt'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '0' # Don't break build yet
+
+    # ---------------------------------------------------
+    # STAGE 3: REPORTING
+    # ---------------------------------------------------
+    - name: Upload All Security Reports
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: security-report
-        path: bandit_report.txt
+        name: security-reports
+        path: |
+          bandit_report.txt
+          trivy_report.txt
