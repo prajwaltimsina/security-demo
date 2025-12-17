@@ -19,7 +19,7 @@ graph TD
         subgraph "Public Subnet"
             IGW[Internet Gateway]
             ALB[Application Load Balancer]
-            WAF[AWS WAF - ACL Rules]
+            WAF["AWS WAF - ACL Rules"]
         end
         
         subgraph "Private Subnet"
@@ -28,8 +28,8 @@ graph TD
         end
         
         subgraph "Security Services"
-            GD[GuardDuty (Threat Detection)]
-            ECR[ECR (Image Registry)]
+            GD["GuardDuty (Threat Detection)"]
+            ECR["ECR (Image Registry)"]
         end
     end
 
@@ -39,7 +39,7 @@ graph TD
     Fargate --> App
     Fargate -.->|Pull Image| ECR
 
-```
+---
 
 ---
 
@@ -141,3 +141,4 @@ terraform apply
 * **ECR Pull Failures:** Enabled "Auto-assign Public IP" for Fargate tasks in public subnets to allow image pulling.
 
 ---
+
