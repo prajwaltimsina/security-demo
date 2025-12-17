@@ -168,6 +168,3 @@ docker push <YOUR_AWS_ACCOUNT_ID>[.dkr.ecr.us-east-1.amazonaws.com/my-secure-app
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ```
-
-```
-
